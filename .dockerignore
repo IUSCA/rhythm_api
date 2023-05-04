@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!poetry.lock
+!pyproject.toml
+!.env
+!rhythm_api
