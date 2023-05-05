@@ -1,0 +1,19 @@
+version: "3"
+services:
+  api:
+    container_name: rhythm_api
+    build:
+      context: .
+    expose:
+      - 5001
+    environment:
+      - PORT=5001
+    networks:
+      rhythm_network:
+        ipv4_address: 172.19.0.2
+
+networks:
+  rhythm_network:
+    ipam:
+      config:
+        - subnet: 172.19.0.0/24
