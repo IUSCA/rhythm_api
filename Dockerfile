@@ -13,5 +13,5 @@ RUN pip install -r requirements.txt
 # instead only .env and rhythm_api directory will be copied
 COPY . .
 
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 1 --timeout 0 rhythm_api.app:app
+CMD exec gunicorn -k uvicorn.workers.UvicornWorker --bind :$PORT --workers 1 --threads 1 --timeout 0 rhythm_api.main:app
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD curl -f http://localhost:$PORT/health
