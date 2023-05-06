@@ -1,4 +1,16 @@
-## Worker API
+# Rhythm API
+An API to create and manage workflows using Celery tasks.
+
+This is a ReST API wrapper of [sca_rhythm.Workflow](https://pypi.org/project/sca-rhythm/)
+
+### Set Up Project
+- Clone the repo - `git clone` and `cd rhythm_api`
+- Install [poetry](https://python-poetry.org/docs/)
+- Install dependencies - `poetry install`
+- Start Mongo and RabbitMQ - `docker compose up -d mongo queue`
+- Start the server - `uvicorn rhythm_api.main:app --reload`
+
+
 ### seed the mongo db
 ```bash
 # PWD - go to project root where the docker-compose.yml is
@@ -12,13 +24,17 @@ $ mongoimport --uri 'mongodb://root:example@localhost:27017/?authSource=admin' -
 $ mongoimport --uri 'mongodb://root:example@localhost:27017/?authSource=admin' --jsonArray --db celery --collection workflow_meta --file workflow_meta.json
 ```
 
-### start the api server
-```bash
-gunicorn -p app.pid --bind :5001 --workers 1 --threads 1 --timeout 0 scaworkers.app:app
-```
+### Local API Docs
+- [Swagger docs](http://127.0.0.1:8000/docs#/)
+- [Open API docs](http://127.0.0.1:8000/redoc)
 
+### Deployment
+`bin/deploy.sh`
+
+
+[Production deployment of Uvicorn](https://www.uvicorn.org/deployment/#gunicorn)
 ```bash
-python -m scaworkers.app
+gunicorn -k uvicorn.workers.UvicornWorker --bind :5001 --workers 1 --threads 1 --timeout 0 rhythm_api.main:app
 ```
 
 ### Test
