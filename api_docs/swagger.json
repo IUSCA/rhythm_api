@@ -1,0 +1,405 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Workflow API",
+        "version": "1.0.0"
+    },
+    "basePath": "/api/v1",
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/workflow": {
+            "get": {
+                "description": "Get workflows",
+                "parameters": [
+                    {
+                        "name": "last_task_run",
+                        "in": "query",
+                        "description": "Whether to include the last task run",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "prev_task_runs",
+                        "in": "query",
+                        "description": "Whether to include the previous task runs",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    {
+                        "name": "only_active",
+                        "in": "query",
+                        "description": "Whether to only include active workflows",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "description": "Filter by project",
+                        "type": "string",
+                        "default": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/WorkflowResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new workflow",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Request body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkflowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/WorkflowResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/workflow/{workflow_id}": {
+            "get": {
+                "description": "Get a specific workflow",
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "description": "The ID of the workflow",
+                        "type": "string"
+                    },
+                    {
+                        "name": "last_task_run",
+                        "in": "query",
+                        "description": "Whether to include the last task run",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "prev_task_runs",
+                        "in": "query",
+                        "description": "Whether to include the previous task runs",
+                        "type": "boolean",
+                        "default": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/WorkflowResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific workflow",
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "description": "The ID of the workflow",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/workflow/{workflow_id}/pause": {
+            "post": {
+                "description": "Pause a specific workflow",
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "description": "The ID of the workflow",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/workflow/{workflow_id}/resume": {
+            "post": {
+                "description": "Resume a specific workflow",
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "description": "The ID of the workflow",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Get the health status of the API",
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "WorkflowRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StepRequest"
+                    }
+                },
+                "args": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "StepRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "task": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "dependencies",
+                "command"
+            ]
+        },
+        "WorkflowResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StepInstance"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "steps_done": {
+                    "type": "number"
+                },
+                "total_steps": {
+                    "type": "number"
+                }
+            }
+        },
+        "StepInstance": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "task": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "last_task_run": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TaskRun"
+                      }
+                },
+                "prev_task_run": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TaskRun"
+                      }
+                }
+            },
+            "required": [
+                "name",
+                "dependencies",
+                "command"
+            ]
+        },
+        "TaskRun": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "args": {
+                    "type": "array",
+                    "items": {}
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TaskRun"
+                    }
+                },
+                "date_done": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "date_start": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "kwargs": {
+                    "type": "object"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "queue": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {}
+                },
+                "retries": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "traceback": {
+                    "type": "string",
+                    "nullable": true
+                },
+                "worker": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

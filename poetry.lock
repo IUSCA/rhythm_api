@@ -313,6 +313,21 @@ async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
 
 [[package]]
+name = "flask-swagger-ui"
+version = "4.11.1"
+description = "Swagger UI blueprint for Flask"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "flask-swagger-ui-4.11.1.tar.gz", hash = "sha256:a370199a780d678b32e38f1be10d4d81efa0ee63e9fe2fb766ff1a4b6c37dac8"},
+    {file = "flask_swagger_ui-4.11.1-py3-none-any.whl", hash = "sha256:c951928fe4592d3561b543e0e1ca32703f55d3474de86c894a9d27f795d96c83"},
+]
+
+[package.dependencies]
+flask = "*"
+
+[[package]]
 name = "gunicorn"
 version = "20.1.0"
 description = "WSGI HTTP Server for UNIX"
@@ -689,14 +704,14 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "sca-rhythm"
-version = "0.2.0"
+version = "0.3.1"
 description = "Create and manage workflows using Celery tasks"
 category = "main"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "sca_rhythm-0.2.0-py3-none-any.whl", hash = "sha256:3087f290e310e0684dfaa121b39efb63bb257b6e4d26da3f2f3c2f0c84fe634a"},
-    {file = "sca_rhythm-0.2.0.tar.gz", hash = "sha256:8b25b180411cdc9e532c57820385056ab3a71bf7483ee156e67ac858af9a2e9e"},
+    {file = "sca_rhythm-0.3.1-py3-none-any.whl", hash = "sha256:29d049a4502c882a054f403d6e7449b3cb673abb40394a656da90e5c845363a0"},
+    {file = "sca_rhythm-0.3.1.tar.gz", hash = "sha256:e05d35e503e0b986064664d750e5bd4793cb6f1ca805edba58c5dca76189ed61"},
 ]
 
 [package.dependencies]
@@ -795,4 +810,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "185615104025c8570a781a83511c853b5db3d86fdaa0e1a76698c81245e0e850"
+content-hash = "c684fb42458b42c7681bc644ccd976790c52e6bcbe8575c4735f92619f34f3cf"

@@ -8,11 +8,12 @@ packages = [{include = "rhythm_api"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-sca-rhythm = "^0.2.0"
+sca-rhythm = "^0.3.1"
 celery = "^5.2.7"
 flask = "^2.2.3"
 gunicorn = "^20.1.0"
 python-dotenv = "^1.0.0"
+flask-swagger-ui = "^4.11.1"
 
 [tool.poetry.group.test]
 optional = true
