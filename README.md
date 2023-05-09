@@ -43,3 +43,12 @@ python -m celery -A tests.tasks worker --concurrency 2
 ```
 
 This will start celery workers to run tasks in tests.tasks
+
+
+### Poetry bug
+
+`poetry update` is not installing the latest version of `sca-rhythm`. The workaround is
+- update `pyproject.toml` with the latest version of `sca-rhythm`
+- `pip uninstall sca-rhythm`
+- `poetry cache clear pypi --all`
+- poetry update
