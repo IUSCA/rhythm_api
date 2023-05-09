@@ -7,8 +7,8 @@ This is a ReST API wrapper of [sca_rhythm.Workflow](https://pypi.org/project/sca
 - Clone the repo - `git clone` and `cd rhythm_api`
 - Install [poetry](https://python-poetry.org/docs/)
 - Install dependencies - `poetry install`
-- Start Mongo and RabbitMQ - `docker compose up -d mongo queue`
-- Start the server - `uvicorn rhythm_api.main:app --reload`
+- Start Mongo and RabbitMQ - `docker compose up -d`
+- Start the server - `poetry run dev` or `uvicorn rhythm_api.main:app --reload`
 
 
 ### seed the mongo db
@@ -25,8 +25,8 @@ $ mongoimport --uri 'mongodb://root:example@localhost:27017/?authSource=admin' -
 ```
 
 ### Local API Docs
-- [Swagger docs](http://127.0.0.1:8000/docs#/)
-- [Open API docs](http://127.0.0.1:8000/redoc)
+- [Swagger docs](http://127.0.0.1:5000/docs#/)
+- [Open API docs](http://127.0.0.1:5000/redoc)
 
 ### Deployment
 `bin/deploy.sh`
