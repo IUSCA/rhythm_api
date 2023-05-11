@@ -13,7 +13,7 @@ python-dotenv = "^1.0.0"
 fastapi = "^0.95.1"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 gunicorn = "^20.1.0"
-sca-rhythm = "^0.4.0"
+sca-rhythm = "^0.4.3"
 
 [tool.poetry.group.test]
 optional = true
