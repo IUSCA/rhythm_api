@@ -30,8 +30,11 @@ def get_workflows(
     last_task_run: bool = Query(True, description="Include last task run info"),
     prev_task_runs: bool = Query(False, description="Include previous task runs"),
     only_active: bool = Query(False, description="Filter by only active workflows"),
-    app_id: Optional[str] = Query(None, description="Application ID to filter by")
+    app_id: Optional[str] = Query(None, description="Application ID to filter by"),
+    skip: int = Query(0, description='Number of items to skip. Default is 0.'),
+    limit: int = Query(10, description='Number of items to return. Default is 10.')
 ) -> list[dict]:
+    workflow_ids = None
     if only_active:
         active_tasks = task_col.find({
             'status': {
@@ -40,19 +43,17 @@ def get_workflows(
         })
         workflow_ids = [wf_id for t in active_tasks if
                         (wf_id := (t.get('kwargs', None) or {}).get('workflow_id', None))]
-        # filter by application
-        result = wf_col.find({
-            'app_id': app_id,
-            '_id': {
-                '$in': workflow_ids
-            }
-        }, projection=['_id'])
-        workflow_ids = [res['_id'] for res in result]
-    else:
-        query = omit_none({
-            'app_id': app_id
-        })
-        workflow_ids = [res['_id'] for res in wf_col.find(query, projection=['_id'])]
+
+    query = omit_none({
+        'app_id': app_id
+    })
+    if workflow_ids is not None:
+        query['_id'] = {
+            '$in': workflow_ids
+        }
+    print(query)
+    results = wf_col.find(query, projection=['_id']).skip(skip).limit(limit)
+    workflow_ids = [res['_id'] for res in results]
     response = []
     for workflow_id in workflow_ids:
         try:
