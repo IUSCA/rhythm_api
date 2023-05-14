@@ -2,7 +2,8 @@ notebooks
 env.sh
 .env
 
-keys
+keys/*.key
+keys/*.pub
 db
 .idea
 __pycache__
