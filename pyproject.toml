@@ -4,16 +4,16 @@ version = "0.1.0"
 description = "ReST API server for Rhythm"
 authors = ["Deepak Duggirala <deepakduggi@gmail.com>"]
 readme = "README.md"
-packages = [{include = "rhythm_api"}]
+packages = [{ include = "rhythm_api" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-celery = "^5.3.0rc1"
+celery = "^5.2.7"
 python-dotenv = "^1.0.0"
 fastapi = "^0.95.1"
-uvicorn = {extras = ["standard"], version = "^0.22.0"}
+uvicorn = { extras = ["standard"], version = "^0.22.0" }
 gunicorn = "^20.1.0"
-sca-rhythm = "^0.4.5"
+sca-rhythm = "^0.4.8"
 jwcrypto = "^1.4.2"
 
 [tool.poetry.group.test]

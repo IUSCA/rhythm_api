@@ -5,7 +5,7 @@ from fastapi import APIRouter, Query
 from pydantic import BaseModel
 from sca_rhythm import Workflow
 
-from rhythm_api import celeryconfig
+from rhythm_api.config import celeryconfig
 
 celery_app = Celery("tasks")
 celery_app.config_from_object(celeryconfig)
@@ -51,7 +51,6 @@ def get_workflows(
         query['_id'] = {
             '$in': workflow_ids
         }
-    print(query)
     results = wf_col.find(query, projection=['_id']).skip(skip).limit(limit)
     workflow_ids = [res['_id'] for res in results]
     response = []
