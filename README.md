@@ -29,7 +29,23 @@ $ mongoimport --uri 'mongodb://root:example@localhost:27017/?authSource=admin' -
 - [Open API docs](http://127.0.0.1:5000/redoc)
 
 ### Deployment
-`bin/deploy.sh`
+- Log in as scauser `ssh -A scauser@core-dev1.sca.iu.edu`
+- `cd /opt/sca/apps/rhythm_api`
+
+Generate key pair if not already present:
+- `cd keys`
+- `./genkeys.sh`
+
+Build and run application in docker (needs sudo, log in as a person)
+- `bin/deploy.sh`
+
+View logs (needs sudo, log in as a person)
+- `bin/logs.sh`
+
+### Issue token
+```bash
+sudo docker compose -f "docker-compose-prod.yml" exec api python -m rhythm_api.scripts.issue_token --sub <app-id>
+```
 
 
 [Production deployment of Uvicorn](https://www.uvicorn.org/deployment/#gunicorn)
