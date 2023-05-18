@@ -80,20 +80,19 @@ def get_workflow(workflow_id: str,
 
 class WFRequest(BaseModel):
     name: str
-    descriptions: str = None
+    description: str = None
     app_id: str
     steps: list
     args: list
 
 
 @router.post("")
-def create_workflow(workflow: WFRequest) -> dict:
-    body = workflow.dict()
+def create_workflow(body: WFRequest) -> dict:
     wf = Workflow(celery_app=celery_app,
-                  steps=body['steps'],
-                  name=body['name'],
-                  app_id=body['app_id'],
-                  description=body.get('description', None)
+                  steps=body.steps,
+                  name=body.name,
+                  app_id=body.app_id,
+                  description=body.description
                   )
     wf.start(*body['args'])
     return {'workflow_id': wf.workflow['_id']}
@@ -113,12 +112,11 @@ class ArgsRequest(BaseModel):
 @router.post('/{workflow_id}/resume')
 def resume_workflow(
     workflow_id: str,
-    args: ArgsRequest,
+    body: ArgsRequest,
     force: bool = Query(False, description="Submit the next task even if its status is not FAILED / REVOKED")
 ) -> dict:
-    body = args.dict()
     wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
-    status = wf.resume(force=force, args=body.get('args', None))
+    status = wf.resume(force=force, args=body.args)
     return status
 
 
