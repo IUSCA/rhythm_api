@@ -78,11 +78,17 @@ def get_workflow(workflow_id: str,
     return wf.get_embellished_workflow(last_task_run=last_task_run, prev_task_runs=prev_task_runs)
 
 
+class WFStep(BaseModel):
+    name: str
+    task: str
+    queue: str
+
+
 class WFRequest(BaseModel):
     name: str
     description: str = None
     app_id: str
-    steps: list
+    steps: list[WFStep]
     args: list
 
 
@@ -94,7 +100,7 @@ def create_workflow(body: WFRequest) -> dict:
                   app_id=body.app_id,
                   description=body.description
                   )
-    wf.start(*body['args'])
+    wf.start(*body.args)
     return {'workflow_id': wf.workflow['_id']}
 
 
