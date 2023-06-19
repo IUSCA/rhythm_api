@@ -94,8 +94,9 @@ class WFRequest(BaseModel):
 
 @router.post("")
 def create_workflow(body: WFRequest) -> dict:
+    steps = [step.dict() for step in body.steps]
     wf = Workflow(celery_app=celery_app,
-                  steps=body.steps,
+                  steps=steps,
                   name=body.name,
                   app_id=body.app_id,
                   description=body.description
