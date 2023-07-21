@@ -19,6 +19,30 @@ def omit_none(d):
     return {k: v for k, v in d.items() if v is not None}
 
 
+def pending_workflow_ids(app_id=None):
+    query = {
+        "app_id": app_id,
+        "steps": {
+            "$not": {
+                "$elemMatch": {
+                    "task_runs": {"$exists": True},
+                }
+            }
+        }
+    }
+
+    return wf_col.distinct('_id', omit_none(query))
+
+
+def running_workflow_ids():
+    query = {
+        'status': {'$nin': ['SUCCESS', 'FAILURE', 'REVOKED']},
+        'kwargs.workflow_id': {'$exists': True, '$ne': None}
+    }
+
+    return task_col.distinct("kwargs.workflow_id", query)
+
+
 router = APIRouter(
     prefix="/workflows",
     tags=["workflows"],
@@ -32,29 +56,37 @@ def get_workflows(
     only_active: bool = Query(False, description="Filter by only active workflows"),
     app_id: Optional[str] = Query(None, description="Application ID to filter by"),
     skip: int = Query(0, description='Number of items to skip. Default is 0.'),
-    limit: int = Query(10, description='Number of items to return. Default is 10.')
+    limit: int = Query(10, description='Number of items to return. Default is 10.'),
+    workflow_id: Optional[list[str]] = Query(None, description="Workflow IDs to filter by"),
 ) -> list[dict]:
-    workflow_ids = None
+    # if workflow_ids are provided, narrow the search among these workflows
+    # else consider all workflows
     if only_active:
-        active_tasks = task_col.find({
-            'status': {
-                '$nin': ['SUCCESS', 'FAILURE', 'REVOKED']
-            }
-        })
-        workflow_ids = [wf_id for t in active_tasks if
-                        (wf_id := (t.get('kwargs', None) or {}).get('workflow_id', None))]
+        active_workflow_ids = set(pending_workflow_ids(app_id=app_id)) | set(running_workflow_ids())
+        if workflow_id is not None:
+            wf_id_filter = list(set(workflow_id) & active_workflow_ids)
+        else:
+            wf_id_filter = list(active_workflow_ids)
+    else:
+        wf_id_filter = workflow_id
 
     query = omit_none({
         'app_id': app_id
     })
-    if workflow_ids is not None:
+
+    # wf_id_filter - non-empty list - search only these workflows
+    # wf_id_filter - None - search all workflows - no filter by _id
+    # wf_id_filter - empty list - given queries yield no results. results will be an empty list
+    # and response will be []
+    if wf_id_filter is not None:
         query['_id'] = {
-            '$in': workflow_ids
+            '$in': wf_id_filter
         }
+
     results = wf_col.find(query, projection=['_id']).skip(skip).limit(limit)
-    workflow_ids = [res['_id'] for res in results]
+    wf_ids = [res['_id'] for res in results]
     response = []
-    for workflow_id in workflow_ids:
+    for workflow_id in wf_ids:
         try:
             wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
             if wf is not None:
