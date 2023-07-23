@@ -8,6 +8,8 @@ This is a ReST API wrapper of [sca_rhythm.Workflow](https://pypi.org/project/sca
 - Install [poetry](https://python-poetry.org/docs/)
 - Install dependencies - `poetry install`
 - Start Mongo and RabbitMQ - `docker compose up -d`
+- Generate Keys: `cd keys; ./genkeys.sh`
+- Create .env: `cp .env.example .env`
 - Start the server - `poetry run dev` or `uvicorn rhythm_api.main:app --reload`
 
 
