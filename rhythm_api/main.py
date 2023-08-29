@@ -1,10 +1,16 @@
+from datetime import datetime
+
 import uvicorn
 from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi.encoders import ENCODERS_BY_TYPE
 from fastapi.responses import JSONResponse
 from sca_rhythm import WFNotFound
 
 from rhythm_api.auth import validate_JWT
 from rhythm_api.routers import workflows
+
+# https://stackoverflow.com/a/69541044
+ENCODERS_BY_TYPE[datetime] = lambda d: d.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
 app = FastAPI(title="Rhythm API",
               description="An API to create and manage workflows using Celery tasks")
