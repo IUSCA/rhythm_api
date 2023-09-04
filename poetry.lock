@@ -16,13 +16,13 @@ vine = ">=5.0.0"
 
 [[package]]
 name = "anyio"
-version = "3.7.1"
+version = "4.0.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "anyio-3.7.1-py3-none-any.whl", hash = "sha256:91dee416e570e92c64041bd18b900d1d6fa78dff7048769ce5ac5ddad004fbb5"},
-    {file = "anyio-3.7.1.tar.gz", hash = "sha256:44a3c9aba0f5defa43261a8b3efb97891f2bd7d804e0e1f56419befa1adfc780"},
+    {file = "anyio-4.0.0-py3-none-any.whl", hash = "sha256:cfdb2b588b9fc25ede96d8db56ed50848b0b649dca3dd1df0b11f683bb9e0b5f"},
+    {file = "anyio-4.0.0.tar.gz", hash = "sha256:f7ed51751b2c2add651e5747c891b47e26d2a21be5d32d9311dfe9692f3e5d7a"},
 ]
 
 [package.dependencies]
@@ -30,9 +30,9 @@ idna = ">=2.8"
 sniffio = ">=1.1"
 
 [package.extras]
-doc = ["Sphinx", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme (>=1.2.2)", "sphinxcontrib-jquery"]
-test = ["anyio[trio]", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=4)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
-trio = ["trio (<0.22)"]
+doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["anyio[trio]", "coverage[toml] (>=7)", "hypothesis (>=4.0)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
+trio = ["trio (>=0.22)"]
 
 [[package]]
 name = "billiard"
@@ -562,13 +562,13 @@ deprecated = "*"
 
 [[package]]
 name = "kombu"
-version = "5.3.1"
+version = "5.3.2"
 description = "Messaging library for Python."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "kombu-5.3.1-py3-none-any.whl", hash = "sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9"},
-    {file = "kombu-5.3.1.tar.gz", hash = "sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2"},
+    {file = "kombu-5.3.2-py3-none-any.whl", hash = "sha256:b753c9cfc9b1e976e637a7cbc1a65d446a22e45546cd996ea28f932082b7dc9e"},
+    {file = "kombu-5.3.2.tar.gz", hash = "sha256:0ba213f630a2cb2772728aef56ac6883dc3a2f13435e10048f6e97d48506dbbd"},
 ]
 
 [package.dependencies]
@@ -798,13 +798,13 @@ zstd = ["zstandard"]
 
 [[package]]
 name = "pytest"
-version = "7.4.0"
+version = "7.4.1"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.4.0-py3-none-any.whl", hash = "sha256:78bf16451a2eb8c7a2ea98e32dc119fd2aa758f1d5d66dbf0a59d69a3969df32"},
-    {file = "pytest-7.4.0.tar.gz", hash = "sha256:b4bf8c45bd59934ed84001ad51e11b4ee40d40a1229d2c79f9c592b0a3f6bd8a"},
+    {file = "pytest-7.4.1-py3-none-any.whl", hash = "sha256:460c9a59b14e27c602eb5ece2e47bec99dc5fc5f6513cf924a7d03a578991b1f"},
+    {file = "pytest-7.4.1.tar.gz", hash = "sha256:2f2301e797521b23e4d2585a0a3d7b5e50fdddaaf7e7d6773ea26ddb17c213ab"},
 ]
 
 [package.dependencies]
@@ -913,13 +913,13 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "sca-rhythm"
-version = "0.6.0"
+version = "0.6.2"
 description = "Create and manage workflows using Celery tasks"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "sca_rhythm-0.6.0-py3-none-any.whl", hash = "sha256:6ba155071164dc99c3b8c881d75feb9071e4495f1ed84f5a57cbbd28a959a589"},
-    {file = "sca_rhythm-0.6.0.tar.gz", hash = "sha256:3f172509b190df714f56570c3b6d10173e7f8b144ab20a26ada81ad51bfe6cbd"},
+    {file = "sca_rhythm-0.6.2-py3-none-any.whl", hash = "sha256:9948d55e45183ff032819c0ce151cecda5662105526a33642876ba7c3888401d"},
+    {file = "sca_rhythm-0.6.2.tar.gz", hash = "sha256:8de97c3e8ce57f4a7f38a8e44037d1543a801c1c3a19b7208ca0613a8b4ecda6"},
 ]
 
 [package.dependencies]
@@ -1289,4 +1289,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ffa526cf0b74ecd5c6ed58b599e35107503ed09bffe3da48825839b14bdca733"
+content-hash = "1bf870350ac22c87917e59f18bcf827a0b0310725803674fe4b3e3150a546c61"
