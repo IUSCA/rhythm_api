@@ -114,6 +114,7 @@ class WFStep(BaseModel):
     name: str
     task: str
     queue: str
+    kwargs: list = None
 
 
 class WFRequest(BaseModel):
