@@ -1,5 +1,7 @@
+from enum import unique, Enum
 from typing import Optional
 
+import celery.states
 from celery import Celery
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
@@ -19,78 +21,125 @@ def omit_none(d):
     return {k: v for k, v in d.items() if v is not None}
 
 
-def pending_workflow_ids(app_id=None):
-    query = {
-        "app_id": app_id,
-        "steps": {
-            "$not": {
-                "$elemMatch": {
-                    "task_runs": {"$exists": True},
-                }
-            }
-        }
-    }
-
-    return wf_col.distinct('_id', omit_none(query))
-
-
-def running_workflow_ids():
-    query = {
-        'status': {'$nin': ['SUCCESS', 'FAILURE', 'REVOKED']},
-        'kwargs.workflow_id': {'$exists': True, '$ne': None}
-    }
-
-    return task_col.distinct("kwargs.workflow_id", query)
-
-
 router = APIRouter(
     prefix="/workflows",
     tags=["workflows"],
 )
 
 
-@router.get("")
-def get_workflows(
-    last_task_run: bool = Query(True, description="Include last task run info"),
-    prev_task_runs: bool = Query(False, description="Include previous task runs"),
-    only_active: bool = Query(False, description="Filter by only active workflows"),
-    app_id: Optional[str] = Query(None, description="Application ID to filter by"),
-    skip: int = Query(0, description='Number of items to skip. Default is 0.'),
-    limit: int = Query(10, description='Number of items to return. Default is 10.'),
-    workflow_id: Optional[list[str]] = Query(None, description="Workflow IDs to filter by"),
-) -> list[dict]:
-    # if workflow_ids are provided, narrow the search among these workflows
-    # else consider all workflows
-    if only_active:
-        active_workflow_ids = set(pending_workflow_ids(app_id=app_id)) | set(running_workflow_ids())
-        if workflow_id is not None:
-            wf_id_filter = list(set(workflow_id) & active_workflow_ids)
-        else:
-            wf_id_filter = list(active_workflow_ids)
-    else:
-        wf_id_filter = workflow_id
+@unique
+class Status(str, Enum):
+    PENDING = celery.states.PENDING
+    STARTED = celery.states.STARTED
+    SUCCESS = celery.states.SUCCESS
+    FAILURE = celery.states.FAILURE
+    REVOKED = celery.states.REVOKED
+    DONE = 'DONE'
+    ACTIVE = 'ACTIVE'
+    EXCEPTION = 'EXCEPTION'
 
+
+def status_query_values(status: Status) -> list[str]:
+    ACTIVE_STATES = [celery.states.PENDING, celery.states.STARTED]
+    DONE_STATES = [celery.states.SUCCESS, celery.states.FAILURE, celery.states.REVOKED]
+    EXCEPTION_STATES = [celery.states.FAILURE, celery.states.REVOKED]
+    if status is not None:
+        if status == Status.DONE:
+            return DONE_STATES
+        elif status == Status.ACTIVE:
+            return ACTIVE_STATES
+        elif status == Status.EXCEPTION:
+            return EXCEPTION_STATES
+        else:
+            return [status.value]
+
+
+def query_wf_ids(skip, limit, status=None, app_id=None, workflow_ids=None, sort_by=None, sort_order_asc=True):
     query = omit_none({
         'app_id': app_id
     })
 
-    # wf_id_filter - non-empty list - search only these workflows
-    # wf_id_filter - None - search all workflows - no filter by _id
-    # wf_id_filter - empty list - given queries yield no results. results will be an empty list
-    # and response will be []
-    if wf_id_filter is not None:
-        query['_id'] = {
-            '$in': wf_id_filter
+    if status is not None:
+        query['_status'] = {
+            '$in': status_query_values(status)
         }
 
-    results = wf_col.find(query, projection=['_id']).skip(skip).limit(limit)
+    # workflow_ids - non-empty list - search only these workflows
+    # workflow_ids - None - search all workflows - no filter by _id
+    # workflow_ids - empty list - given queries yield no results. results will be an empty list
+    # and response will be []
+    if workflow_ids is not None:
+        query['_id'] = {
+            '$in': workflow_ids
+        }
+
+    cursor = wf_col.aggregate([
+        {
+            '$match': query,
+        },
+        {
+            '$facet': {
+                "metadata": [
+                    {
+                        '$count': 'count'
+                    }
+                ],
+                "results": [
+                    {
+                        '$sort': {
+                            'created_at': 1 if sort_order_asc else -1  # 1 for ascending, -1 for descending
+                        }
+                    },
+                    {
+                        '$skip': skip,
+                    },
+                    {
+                        '$limit': limit,
+                    },
+                    {
+                        '$project': {
+                            '_id': 1
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+    # cursor will always yield a dict with metadata and results keys even if there are no results
+    result = next(cursor)
+
+    metadata = result['metadata']
+    count = metadata[0]['count'] if metadata else 0
+    return result['results'], count
+
+
+@router.get("")
+def get_workflows(
+    last_task_run: bool = Query(True, description="Include last task run info"),
+    prev_task_runs: bool = Query(False, description="Include previous task runs"),
+    status: Status = Query(None, description="Filter by workflow status"),
+    app_id: Optional[str] = Query(None, description="Application ID to filter by"),
+    skip: int = Query(0, description='Number of items to skip. Default is 0.'),
+    limit: int = Query(10, description='Number of items to return. Default is 10.'),
+    workflow_id: Optional[list[str]] = Query(None, description="Workflow IDs to filter by"),
+    sort_by: str = Query(None, description="Sort by"),
+    sort_order_asc: bool = Query(False, description="Direction of sort; true-asc, false-desc"),
+) -> dict:
+    results, total_count = query_wf_ids(skip=skip,
+                                        limit=limit,
+                                        status=status,
+                                        app_id=app_id,
+                                        workflow_ids=workflow_id,
+                                        sort_by=sort_by,
+                                        sort_order_asc=sort_order_asc
+                                        )
     wf_ids = [res['_id'] for res in results]
-    response = []
+    workflows = []
     for workflow_id in wf_ids:
         try:
             wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
             if wf is not None:
-                response.append(
+                workflows.append(
                     wf.get_embellished_workflow(
                         last_task_run=last_task_run,
                         prev_task_runs=prev_task_runs
@@ -98,7 +147,56 @@ def get_workflows(
                 )
         except Exception as e:
             print(e)
-    return response
+    return {
+        'metadata': {
+            'total': total_count,
+            'limit': limit,
+            'skip': skip
+        },
+        'results': workflows
+    }
+
+
+@router.get("/counts_by_status")
+def workflow_counts_by_status(
+    app_id: Optional[str] = Query(None, description="Application ID to filter by")
+) -> dict:
+    cursor = wf_col.aggregate([
+        {
+            '$match': {
+                'app_id': app_id,
+                '_status': {
+                    '$ne': None
+                }
+            }
+        },
+        {
+            '$group': {
+                '_id': '$_status',
+                'count': {
+                    '$sum': 1
+                }
+            }
+        },
+        {
+            '$project': {
+                'status': '$_id',
+                'count': 1,
+                '_id': 0
+            }
+        }
+    ])
+    results = list(cursor)
+    counts = {
+        celery.states.PENDING: 0,
+        celery.states.STARTED: 0,
+        celery.states.FAILURE: 0,
+        celery.states.REVOKED: 0,
+        celery.states.SUCCESS: 0
+    }
+    for r in results:
+        counts[r['status']] = r['count']
+    return counts
 
 
 @router.get("/{workflow_id}")
