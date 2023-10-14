@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from sca_rhythm import WFNotFound
 
 from rhythm_api.auth import validate_JWT
-from rhythm_api.routers import workflows
+from rhythm_api.routers import workflows, tasks
 
 # https://stackoverflow.com/a/69541044
 ENCODERS_BY_TYPE[datetime] = lambda d: d.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
@@ -52,6 +52,7 @@ async def auth(request: Request):
 
 
 app.include_router(workflows.router, dependencies=[Depends(auth)])
+app.include_router(tasks.router, dependencies=[Depends(auth)])
 
 
 def start_dev():
