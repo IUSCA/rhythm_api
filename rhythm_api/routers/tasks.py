@@ -1,4 +1,3 @@
-import celery.states
 from celery import Celery
 from fastapi import APIRouter, Query
 
@@ -16,31 +15,37 @@ router = APIRouter(
 )
 
 
-@router.get("/active")
-def group_active_tasks_by_step(app_id: str = Query(description="Application ID")) -> list[dict]:
-    cursor = task_col.aggregate(
-        [
-            {
-                '$match': {
-                    'kwargs.step': {'$ne': None},
-                    'kwargs.app_id': app_id,
-                    'status': {'$nin': [celery.states.SUCCESS, celery.states.FAILURE, celery.states.REVOKED]}
-                }
-            },
-            {
-                '$group': {
-                    '_id': '$kwargs.step',
-                    'tasks': {'$push': '$$ROOT'}
-                }
-            },
-            {
-                '$project': {
-                    'step': "$_id",
-                    'tasks': 1,
-                    '_id': 0
-                }
-            }
+# @router.get("/active")
+# def group_active_tasks_by_step(app_id: str = Query(description="Application ID")) -> list[dict]:
+#     cursor = task_col.aggregate(
+#         [
+#             {
+#                 '$match': {
+#                     'kwargs.step': {'$ne': None},
+#                     'kwargs.app_id': app_id,
+#                     'status': {'$nin': [celery.states.SUCCESS]}
+#                 }
+#             },
+#             {
+#                 '$group': {
+#                     '_id': '$kwargs.step',
+#                     'tasks': {'$push': '$$ROOT'}
+#                 }
+#             },
+#             {
+#                 '$project': {
+#                     'step': "$_id",
+#                     'tasks': 1,
+#                     '_id': 0
+#                 }
+#             }
+#
+#         ]
+#     )
+#     return list(cursor)
 
-        ]
-    )
+
+@router.get('/unique')
+def unique_steps(app_id: str = Query(description="Application ID")) -> list:
+    cursor = task_col.distinct('kwargs.step')
     return list(cursor)

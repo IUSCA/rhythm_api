@@ -13,7 +13,7 @@ python-dotenv = "^1.0.0"
 fastapi = "^0.95.1"
 uvicorn = { extras = ["standard"], version = "^0.22.0" }
 gunicorn = "^20.1.0"
-sca-rhythm = "^0.6.10"
+sca-rhythm = "^0.6.11"
 jwcrypto = "^1.5.0"
 
 [tool.poetry.group.test]
