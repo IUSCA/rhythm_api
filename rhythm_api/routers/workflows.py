@@ -142,7 +142,8 @@ def get_workflows(
                 workflows.append(
                     wf.get_embellished_workflow(
                         last_task_run=last_task_run,
-                        prev_task_runs=prev_task_runs
+                        prev_task_runs=prev_task_runs,
+                        refresh=False
                     )
                 )
         except Exception as e:
@@ -239,7 +240,7 @@ def create_workflow(body: WFRequest) -> dict:
 @router.post('/{workflow_id}/pause')
 def pause_workflow(workflow_id: str) -> dict:
     wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
-    status = wf.pause()
+    status = wf.pause(refresh=False)
     return status
 
 
@@ -254,7 +255,7 @@ def resume_workflow(
     force: bool = Query(False, description="Submit the next task even if its status is not FAILED / REVOKED")
 ) -> dict:
     wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
-    status = wf.resume(force=force, args=body.args)
+    status = wf.resume(force=force, args=body.args, refresh=False)
     return status
 
 

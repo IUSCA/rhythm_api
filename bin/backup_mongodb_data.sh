@@ -10,7 +10,7 @@ echo
 percent_encoded_password=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" $password)
 
 # URI
-URI="mongodb://dgl:$percent_encoded_password@commons3.sca.iu.edu:27017/dgl-test?authSource=dgl-test"
+URI="mongodb://celery_api:$percent_encoded_password@commons3.sca.iu.edu:27017/celery_api?authSource=celery_api"
 
 mongoexport \
     --uri="$URI" \
