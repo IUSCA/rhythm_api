@@ -32,6 +32,17 @@ services:
       # for importing database files
       - ./db/mongodump:/opt/sca/app/mongodump
 
+  api:
+    restart: unless-stopped
+    build:
+      context: .
+    expose:
+      - 5001
+    ports:
+      - 5001:5001
+    environment:
+      - PORT=5001
+
   # init-db:
   #   container_name: rhythm_mongo_init_db
   #   image: mongo:5
