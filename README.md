@@ -44,6 +44,24 @@ Build and run application in docker (needs sudo, log in as a person)
 View logs (needs sudo, log in as a person)
 - `bin/logs.sh`
 
+### Deploy to Dev
+
+In dev env (bioloop-dev1.sca.iu.edu), bioloop and rhythm are run on the same but in different docker compose
+projects. To enable communication between them, rhythm api is run on the bioloop network.
+
+- Log in as scadev `ssh -A scadev@bioloop-dev1.sca.iu.edu`
+- `cd /opt/sca/rhythm_api`
+
+Generate key pair if not already present:
+- `cd keys`
+- `./genkeys.sh`
+
+Build and run application in docker (needs sudo, log in as a person)
+- `bin/deploy.sh dev`
+
+View logs (needs sudo, log in as a person)
+- `bin/logs.sh api dev`
+
 ### Issue token
 ```bash
 sudo docker compose -f "docker-compose-prod.yml" exec api python -m rhythm_api.scripts.issue_token --sub <app-id>
