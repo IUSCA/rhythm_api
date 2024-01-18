@@ -33,3 +33,7 @@ result_backend = f'mongodb://{mongo_username}:{urllib.parse.quote(mongo_password
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#database-backend-settings
 # https://stackoverflow.com/questions/69952488/celery-task-result-in-postgres-database-is-in-byte-format
 # result_backend = 'db+postgresql://username:password@localhost:5432/celery'
+
+# https://docs.celeryq.dev/en/stable/userguide/routing.html#rabbitmq-message-priorities
+task_queue_max_priority = 10
+task_default_priority = 1
