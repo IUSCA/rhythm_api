@@ -3,14 +3,26 @@ An API to create and manage workflows using Celery tasks.
 
 This is a ReST API wrapper of [sca_rhythm.Workflow](https://pypi.org/project/sca-rhythm/)
 
+
 ### Set Up Project
 - Clone the repo - `git clone` and `cd rhythm_api`
+- Generate Keys: `cd keys; ./genkeys.sh`
+- Create .env: `cp .env.example .env`
+- Start the server - `docker compose up -d mongo queue api`
+
+### Set Up Project - without docker
+- Clone the repo - `git clone` and `cd rhythm_api`
 - Install [poetry](https://python-poetry.org/docs/)
-- Install dependencies - `poetry install`
 - Start Mongo and RabbitMQ - `docker compose up -d`
 - Generate Keys: `cd keys; ./genkeys.sh`
 - Create .env: `cp .env.example .env`
 - Start the server - `poetry run dev` or `uvicorn rhythm_api.main:app --reload`
+
+### Backup MongoDB
+```bash
+docker compose run --rm mongobackup
+```
+Backup are db/backups
 
 
 ### seed the mongo db
@@ -29,38 +41,6 @@ $ mongoimport --uri 'mongodb://root:example@localhost:27017/?authSource=admin' -
 ### Local API Docs
 - [Swagger docs](http://127.0.0.1:5000/docs#/)
 - [Open API docs](http://127.0.0.1:5000/redoc)
-
-### Deployment
-- Log in as scauser `ssh -A scauser@core-dev1.sca.iu.edu`
-- `cd /opt/sca/apps/rhythm_api`
-
-Generate key pair if not already present:
-- `cd keys`
-- `./genkeys.sh`
-
-Build and run application in docker (needs sudo, log in as a person)
-- `bin/deploy.sh`
-
-View logs (needs sudo, log in as a person)
-- `bin/logs.sh`
-
-### Deploy to Dev
-
-In dev env (bioloop-dev1.sca.iu.edu), bioloop and rhythm are run on the same but in different docker compose
-projects. To enable communication between them, rhythm api is run on the bioloop network.
-
-- Log in as scadev `ssh -A scadev@bioloop-dev1.sca.iu.edu`
-- `cd /opt/sca/rhythm_api`
-
-Generate key pair if not already present:
-- `cd keys`
-- `./genkeys.sh`
-
-Build and run application in docker (needs sudo, log in as a person)
-- `bin/deploy.sh dev`
-
-View logs (needs sudo, log in as a person)
-- `bin/logs.sh api dev`
 
 ### Issue token
 ```bash
