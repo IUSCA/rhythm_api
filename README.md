@@ -22,7 +22,7 @@ This is a ReST API wrapper of [sca_rhythm.Workflow](https://pypi.org/project/sca
 ```bash
 docker compose run --rm mongobackup
 ```
-Backup are db/backups
+Backup are in db/backups
 
 
 ### seed the mongo db
