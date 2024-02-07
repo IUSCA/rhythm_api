@@ -8,7 +8,10 @@ load_dotenv()  # take environment variables from .env.
 queue_url = os.environ['QUEUE_URL']
 queue_username = os.environ['QUEUE_USER']
 queue_password = os.environ['QUEUE_PASS']
-mongo_url = os.environ['MONGO_URL']
+mongo_host = os.environ['MONGO_HOST']
+mongo_port = os.environ['MONGO_PORT']
+mongo_db = os.environ['MONGO_DB']
+mongo_auth_source = os.environ['MONGO_AUTH_SOURCE']
 mongo_username = os.environ['MONGO_USER']
 mongo_password = os.environ['MONGO_PASS']
 
@@ -28,7 +31,7 @@ result_serializer = 'json'
 # result_backend = 'redis://localhost:6379/0'
 
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#conf-mongodb-result-backend
-result_backend = f'mongodb://{mongo_username}:{urllib.parse.quote(mongo_password)}@{mongo_url}'
+result_backend = f'mongodb://{mongo_username}:{urllib.parse.quote(mongo_password)}@{mongo_host}:{mongo_port}/{mongo_db}?authSource={mongo_db}'
 
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#database-backend-settings
 # https://stackoverflow.com/questions/69952488/celery-task-result-in-postgres-database-is-in-byte-format
