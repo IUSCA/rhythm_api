@@ -10,7 +10,7 @@ load_dotenv()  # take environment variables from .env.
 
 env = os.environ.get('APP_ENV', None)
 if env:
-    env_module = importlib.import_module(f'workers.config.{env}')
+    env_module = importlib.import_module(f'rhythm_api.config.{env}')
     config = utils.merge(common.config, env_module.config)
 else:
     config = common.config
