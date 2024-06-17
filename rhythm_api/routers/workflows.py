@@ -213,7 +213,7 @@ class WFStep(BaseModel):
     name: str
     task: str
     queue: str
-    kwargs: list = None
+    kwargs: dict = None
 
 
 class WFRequest(BaseModel):
