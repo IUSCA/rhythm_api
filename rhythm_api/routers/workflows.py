@@ -54,7 +54,14 @@ def status_query_values(status: Status) -> list[str]:
             return [status.value]
 
 
-def query_wf_ids(skip, limit, status=None, app_id=None, workflow_ids=None, sort_by=None, sort_order_asc=True):
+def query_wf_ids(skip,
+                 limit,
+                 status=None,
+                 app_id=None,
+                 workflow_ids=None,
+                 sort_by=None,
+                 sort_order_asc=True,
+                 workflow_name=None):
     query = omit_none({
         'app_id': app_id
     })
@@ -73,6 +80,11 @@ def query_wf_ids(skip, limit, status=None, app_id=None, workflow_ids=None, sort_
             '$in': workflow_ids
         }
 
+    if workflow_name is not None:
+        query['name'] = {
+            '$eq': workflow_name
+        }
+    
     cursor = wf_col.aggregate([
         {
             '$match': query,
@@ -124,6 +136,7 @@ def get_workflows(
     workflow_id: Optional[list[str]] = Query(None, description="Workflow IDs to filter by"),
     sort_by: str = Query(None, description="Sort by"),
     sort_order_asc: bool = Query(False, description="Direction of sort; true-asc, false-desc"),
+    workflow_name: Optional[str] = Query(None, description="Workflow name to filter by"),
 ) -> dict:
     results, total_count = query_wf_ids(skip=skip,
                                         limit=limit,
@@ -131,8 +144,8 @@ def get_workflows(
                                         app_id=app_id,
                                         workflow_ids=workflow_id,
                                         sort_by=sort_by,
-                                        sort_order_asc=sort_order_asc
-                                        )
+                                        sort_order_asc=sort_order_asc,
+                                        workflow_name=workflow_name)
     wf_ids = [res['_id'] for res in results]
     workflows = []
     for workflow_id in wf_ids:
