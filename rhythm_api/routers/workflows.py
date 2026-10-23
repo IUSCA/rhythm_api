@@ -3,10 +3,11 @@ from typing import Optional
 
 import celery.states
 from celery import Celery
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
-from sca_rhythm import Workflow
+from sca_rhythm import Workflow, WFNotFound
 
+from rhythm_api.app_scope import resolve_app_id, check_workflow
 from rhythm_api.config import celeryconfig
 
 celery_app = Celery("tasks")
@@ -19,6 +20,12 @@ task_col = db.get_collection('celery_taskmeta')
 
 def omit_none(d):
     return {k: v for k, v in d.items() if v is not None}
+
+
+def get_scoped_workflow(request: Request, workflow_id: str) -> Workflow:
+    wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
+    check_workflow(request, workflow_id, wf.workflow.get('app_id'))
+    return wf
 
 
 router = APIRouter(
@@ -115,6 +122,7 @@ def query_wf_ids(skip, limit, status=None, app_id=None, workflow_ids=None, sort_
 
 @router.get("")
 def get_workflows(
+    request: Request,
     last_task_run: bool = Query(True, description="Include last task run info"),
     prev_task_runs: bool = Query(False, description="Include previous task runs"),
     status: Status = Query(None, description="Filter by workflow status"),
@@ -125,6 +133,7 @@ def get_workflows(
     sort_by: str = Query(None, description="Sort by"),
     sort_order_asc: bool = Query(False, description="Direction of sort; true-asc, false-desc"),
 ) -> dict:
+    app_id = resolve_app_id(request, app_id)
     results, total_count = query_wf_ids(skip=skip,
                                         limit=limit,
                                         status=status,
@@ -160,8 +169,10 @@ def get_workflows(
 
 @router.get("/counts_by_status")
 def workflow_counts_by_status(
+    request: Request,
     app_id: Optional[str] = Query(None, description="Application ID to filter by")
 ) -> dict:
+    app_id = resolve_app_id(request, app_id)
     cursor = wf_col.aggregate([
         {
             '$match': {
@@ -201,11 +212,12 @@ def workflow_counts_by_status(
 
 
 @router.get("/{workflow_id}")
-def get_workflow(workflow_id: str,
+def get_workflow(request: Request,
+                 workflow_id: str,
                  last_task_run: bool = Query(True, description="Include last task run info"),
                  prev_task_runs: bool = Query(False, description="Include previous task runs")
                  ) -> dict:
-    wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
+    wf = get_scoped_workflow(request, workflow_id)
     return wf.get_embellished_workflow(last_task_run=last_task_run, prev_task_runs=prev_task_runs)
 
 
@@ -225,12 +237,13 @@ class WFRequest(BaseModel):
 
 
 @router.post("")
-def create_workflow(body: WFRequest) -> dict:
+def create_workflow(request: Request, body: WFRequest) -> dict:
+    app_id = resolve_app_id(request, body.app_id)
     steps = [step.dict() for step in body.steps]
     wf = Workflow(celery_app=celery_app,
                   steps=steps,
                   name=body.name,
-                  app_id=body.app_id,
+                  app_id=app_id,
                   description=body.description
                   )
     wf.start(*body.args)
@@ -238,8 +251,8 @@ def create_workflow(body: WFRequest) -> dict:
 
 
 @router.post('/{workflow_id}/pause')
-def pause_workflow(workflow_id: str) -> dict:
-    wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
+def pause_workflow(request: Request, workflow_id: str) -> dict:
+    wf = get_scoped_workflow(request, workflow_id)
     status = wf.pause(refresh=False)
     return status
 
@@ -250,17 +263,25 @@ class ArgsRequest(BaseModel):
 
 @router.post('/{workflow_id}/resume')
 def resume_workflow(
+    request: Request,
     workflow_id: str,
     body: ArgsRequest,
     force: bool = Query(False, description="Submit the next task even if its status is not FAILED / REVOKED")
 ) -> dict:
-    wf = Workflow(celery_app=celery_app, workflow_id=workflow_id)
+    wf = get_scoped_workflow(request, workflow_id)
     status = wf.resume(force=force, args=body.args, refresh=False)
     return status
 
 
 @router.delete('/{workflow_id}')
-def delete_workflow(workflow_id: str):
+def delete_workflow(request: Request, workflow_id: str):
+    wf = wf_col.find_one({'_id': workflow_id}, {'app_id': 1})
+    if wf is not None:
+        try:
+            check_workflow(request, workflow_id, wf.get('app_id'))
+        except WFNotFound:
+            # Answer as for a missing workflow.
+            return {'deleted_count': 0}
     results = wf_col.delete_one({'_id': workflow_id})
     return {
         'deleted_count': results.deleted_count

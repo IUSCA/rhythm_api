@@ -47,6 +47,16 @@ $ mongoimport --uri 'mongodb://root:example@localhost:27017/?authSource=admin' -
 sudo docker compose -f "docker-compose-prod.yml" exec api python -m rhythm_api.scripts.issue_token --sub <app-id>
 ```
 
+`<app-id>` must be the `app_id` the application sends. A token may only list, create, and act on workflows whose `app_id` equals its `sub`.
+
+### App scope
+`APP_SCOPE_MODE` in `.env` sets how a token's `sub` is checked against the `app_id` of each request and workflow:
+- `log` (default): every request goes through unchanged, and each mismatch is logged as `APP_SCOPE_MISMATCH` with the token's `sub`, the `app_id`, and the route.
+- `enforce`: a list, count, or create for another app answers 403, and an omitted `app_id` defaults to the token's own. Another app's workflow answers as if it did not exist.
+- `off`: no check.
+
+Deploy in `log` first and read the log (`docker compose logs api | grep APP_SCOPE_MISMATCH`) before switching to `enforce`. Tokens that need every app's workflows, such as an operator's, are listed by `sub` in `APP_SCOPE_ADMIN_SUBJECTS`, comma-separated. Issue one with `--sub <name>` and add the name there.
+
 
 [Production deployment of Uvicorn](https://www.uvicorn.org/deployment/#gunicorn)
 ```bash
